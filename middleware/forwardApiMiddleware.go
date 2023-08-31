@@ -1,11 +1,17 @@
 package middleware
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
+
+func HandlerInvokeError(c *gin.Context) {
+	c.JSON(http.StatusInternalServerError, gin.H{"error": "调用接口失败"})
+	c.Abort()
+}
 
 // 路由转发
 func ForwardApi() gin.HandlerFunc {
@@ -25,7 +31,8 @@ func ForwardApi() gin.HandlerFunc {
 		// 创建转发请求
 		request, err := http.NewRequest(forwardMethod, targetURL, c.Request.Body)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
+			fmt.Println("error", "Failed to create request")
+			HandlerInvokeError(c)
 			return
 		}
 
@@ -40,7 +47,8 @@ func ForwardApi() gin.HandlerFunc {
 		client := &http.Client{}
 		response, err := client.Do(request)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to forward request"})
+			fmt.Println("error", "Failed to forward request")
+			HandlerInvokeError(c)
 			return
 		}
 		defer response.Body.Close()
@@ -48,11 +56,22 @@ func ForwardApi() gin.HandlerFunc {
 		// 读取转发请求的响应内容
 		body, err := io.ReadAll(response.Body)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response"})
+			fmt.Println("error", "Failed to read response")
+			HandlerInvokeError(c)
 			return
 		}
 
-		// 返回响应内容给请求方
-		c.String(response.StatusCode, string(body))
+		// 添加响应日志
+		fmt.Println("响应码：", response.StatusCode)
+
+		// 调用成功
+		if response.StatusCode == http.StatusOK {
+			// 返回响应内容给请求方
+			c.String(response.StatusCode, string(body))
+			c.Next()
+		} else {
+			HandlerInvokeError(c)
+			return
+		}
 	}
 }

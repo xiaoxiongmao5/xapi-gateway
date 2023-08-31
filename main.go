@@ -24,7 +24,7 @@ import (
 func main() {
 	router := gin.Default()
 
-	// 请求体质
+	// 请求日志
 	router.Use(middleware.LogMiddleware())
 	// 处理跨域
 	router.Use(middleware.CORSMiddleware())
@@ -36,7 +36,9 @@ func main() {
 		apiGroup.Any("/*path",
 			middleware.FilterWithAccessControl(), // 访问控制（黑白名单）
 			middleware.SignMiddleware(),          // 统一鉴权（API权限验证）
-			middleware.ForwardApi(),              // 路由转发
+			// todo 请求的模拟接口是否存在
+			middleware.ForwardApi(),            // 路由转发
+			middleware.InvokeCountMiddleware(), //调用次数统计更新
 		)
 	}
 
