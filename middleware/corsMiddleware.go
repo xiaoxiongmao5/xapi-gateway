@@ -12,7 +12,7 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 
 		// 允许的请求标头
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Nonce, timestamp, accessKey, sign")
 
 		// 允许携带 Cookie
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")

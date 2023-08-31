@@ -24,15 +24,20 @@ import (
 func main() {
 	router := gin.Default()
 
+	// 请求体质
 	router.Use(middleware.LogMiddleware())
+	// 处理跨域
 	router.Use(middleware.CORSMiddleware())
-	router.Use(middleware.SignMiddleware())
 
 	// 定义一个路由组，用于匹配以 / 开头的路由
 	apiGroup := router.Group("/")
 	{
 		// 匹配这个路由组中的所有请求方式和路径片段，无论是GET、POST、DELETE 等方式，以及后面跟着什么路径片段，都会被这个路由组匹配到。
-		apiGroup.Any("/*path", middleware.FilterWithAccessControl(), middleware.ForwardApi())
+		apiGroup.Any("/*path",
+			middleware.FilterWithAccessControl(), // 访问控制（黑白名单）
+			middleware.SignMiddleware(),          // 统一鉴权（API权限验证）
+			middleware.ForwardApi(),              // 路由转发
+		)
 	}
 
 	// 运行服务

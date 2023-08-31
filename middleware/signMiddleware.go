@@ -1,9 +1,9 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 	"xj/xapi-gateway/utils"
 
 	"github.com/gin-gonic/gin"
@@ -20,14 +20,14 @@ func SignMiddleware() gin.HandlerFunc {
 		nonce := c.Request.Header.Get("nonce")
 		timestamp := c.Request.Header.Get("timestamp")
 		sign := c.Request.Header.Get("sign")
-		body := c.Request.Header.Get("body")
+		body := ""
 
 		// ToDo 去数据库中查是否已分配给用户
 		if accessKey != "xiaoxiong" {
 			HandlerNoAuth(c)
 			return
 		}
-		secretKey := ""
+		secretKey := "xiaoxiong5"
 		// 校验如果随机数大于1万，则抛出异常
 		if num, err := strconv.Atoi(nonce); err != nil || num > 10000 {
 			HandlerNoAuth(c)
@@ -35,7 +35,7 @@ func SignMiddleware() gin.HandlerFunc {
 		}
 		// 时间和当前时间不能超过5分钟
 		fiveMinutes := int64(5 * 60)
-		timestampNow := time.Now().Unix()
+		timestampNow := utils.GetCurrentTimeMillis()
 		if tsInt, err := strconv.ParseInt(timestamp, 10, 64); err != nil || timestampNow-tsInt >= fiveMinutes {
 			HandlerNoAuth(c)
 			return
@@ -47,6 +47,7 @@ func SignMiddleware() gin.HandlerFunc {
 			HandlerNoAuth(c)
 			return
 		}
+		fmt.Println("API权限验证 通过")
 		c.Next()
 	}
 }

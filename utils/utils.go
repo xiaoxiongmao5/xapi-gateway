@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"net"
+	"net/url"
 
 	"github.com/gin-gonic/gin"
 )
@@ -43,4 +44,13 @@ func GetLocalIP() []string {
 		}
 	}
 	return ipStr
+}
+
+func GetDomainFromReferer(referer string) (string, error) {
+	parsedURL, err := url.Parse(referer)
+	if err != nil {
+		return "", err
+	}
+
+	return parsedURL.Hostname(), nil
 }

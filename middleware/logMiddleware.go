@@ -21,7 +21,10 @@ func LogMiddleware() gin.HandlerFunc {
 		fmt.Println("请求参数Cookies：", c.Request.Cookies())       //	[token=eyJhbGciOiJIUzxxx]
 		fmt.Println("请求参数Host[目标地址]：", c.Request.Host)         //	localhost:8080
 		fmt.Println("请求参数Referer[来源地址]：", c.Request.Referer()) //	http://localhost:8001/
-		fmt.Println("访问IP：", utils.GetRequestIp(c))            //	127.0.0.1
-		fmt.Println("本地IP：", utils.GetLocalIP())               //	192.168.2.104
+		domain, _ := utils.GetDomainFromReferer(c.Request.Referer())
+		fmt.Println("请求参数Referer[来源域名]：", domain)   //	localhost
+		fmt.Println("访问IP：", utils.GetRequestIp(c)) //	127.0.0.1
+		fmt.Println("本地IP：", utils.GetLocalIP())    //	192.168.2.104
+
 	}
 }
