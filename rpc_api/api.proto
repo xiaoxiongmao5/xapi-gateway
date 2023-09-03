@@ -1,0 +1,73 @@
+
+// EDIT IT, change to your package, service and message
+syntax = "proto3";
+package rpc_api;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "./;rpc_api";
+
+// 定义公共的接口（只定义，不实现接口）
+
+service UserIntefaceInfo {
+    // 调用接口统计
+    rpc InvokeCount (InvokeCountReq) returns (InvokeCountResp) {}
+}
+
+service IntefaceInfo {
+    // 从数据库中查询接口是否存在（请求路径、请求方法、请求参数）
+    rpc GetInterfaceInfo (GetInterfaceInfoReq) returns (GetInterfaceInfoResp) {}
+}
+
+service UserInfo {
+    // 数据库中查询是否已分配给用户秘钥（accessKey）
+    rpc GetInvokeUser (GetInvokeUserReq) returns (GetInvokeUserResp) {}
+}
+
+message InvokeCountReq {
+    int64 interfaceId = 1;
+    int64 userId = 2;
+}
+
+message InvokeCountResp {
+    bool result = 1;
+}
+
+message GetInterfaceInfoReq {
+    string path = 1;
+    string method = 2;
+}
+
+message GetInterfaceInfoResp {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    string url = 4;
+    string requestparams = 5;
+    string requestheader = 6;
+    string responseheader = 7;
+    int32 status = 8;
+    string method = 9;
+    int64 userid = 10;
+    google.protobuf.Timestamp createtime = 11;
+    google.protobuf.Timestamp updatetime = 12;
+}
+
+message GetInvokeUserReq {
+    string accessKey = 1;
+}
+
+message GetInvokeUserResp {
+    int64 id = 1;
+    string useraccount = 2;
+    string userpassword = 3;
+    string userrole = 4;
+    string username = 5;
+    string useravatar = 6;
+    int32 gender = 7;
+    string accesskey = 8;
+    string secretkey = 9;
+    google.protobuf.Timestamp createtime = 10;
+    google.protobuf.Timestamp updatetime = 11;
+    int32 isdelete = 12;
+  }
