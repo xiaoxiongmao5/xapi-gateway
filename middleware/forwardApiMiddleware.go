@@ -4,14 +4,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	ghandle "xj/xapi-gateway/g_handle"
 
 	"github.com/gin-gonic/gin"
 )
-
-func HandlerInvokeError(c *gin.Context) {
-	c.JSON(http.StatusInternalServerError, gin.H{"error": "调用接口失败"})
-	c.Abort()
-}
 
 // 路由转发
 func ForwardApi() gin.HandlerFunc {
@@ -32,7 +28,7 @@ func ForwardApi() gin.HandlerFunc {
 		request, err := http.NewRequest(forwardMethod, targetURL, c.Request.Body)
 		if err != nil {
 			fmt.Println("error", "Failed to create request")
-			HandlerInvokeError(c)
+			ghandle.HandlerInvokeError(c)
 			return
 		}
 
@@ -48,7 +44,7 @@ func ForwardApi() gin.HandlerFunc {
 		response, err := client.Do(request)
 		if err != nil {
 			fmt.Println("error", "Failed to forward request")
-			HandlerInvokeError(c)
+			ghandle.HandlerInvokeError(c)
 			return
 		}
 		defer response.Body.Close()
@@ -57,7 +53,7 @@ func ForwardApi() gin.HandlerFunc {
 		body, err := io.ReadAll(response.Body)
 		if err != nil {
 			fmt.Println("error", "Failed to read response")
-			HandlerInvokeError(c)
+			ghandle.HandlerInvokeError(c)
 			return
 		}
 
@@ -70,7 +66,7 @@ func ForwardApi() gin.HandlerFunc {
 			c.String(response.StatusCode, string(body))
 			c.Next()
 		} else {
-			HandlerInvokeError(c)
+			ghandle.HandlerInvokeError(c)
 			return
 		}
 	}

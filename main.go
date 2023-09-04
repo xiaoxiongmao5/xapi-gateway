@@ -1,19 +1,13 @@
 package main
 
 import (
-	"context"
 	"flag"
-	"net/http"
 	"os"
-	"time"
 	"xj/xapi-gateway/middleware"
-	"xj/xapi-gateway/rpc_api"
+
+	_ "dubbo.apache.org/dubbo-go/v3/imports"
 
 	"github.com/gin-gonic/gin"
-
-	"dubbo.apache.org/dubbo-go/v3/common/logger"
-	dubboConfig "dubbo.apache.org/dubbo-go/v3/config"
-	_ "dubbo.apache.org/dubbo-go/v3/imports"
 )
 
 /** 使用网关做的事情（统一做的事情）
@@ -29,10 +23,6 @@ import (
 1. 统一日志
 */
 
-var grpcUserInterfaceInfoImpl = new(rpc_api.UserIntefaceInfoClientImpl)
-var grpcInterfaceInfoImpl = new(rpc_api.IntefaceInfoClientImpl)
-var grpcUserInfoImpl = new(rpc_api.UserInfoClientImpl)
-
 func init() {
 	// 使用命令行参数来指定配置文件路径
 	configFile := flag.String("config", "conf/dubbogo.yml", "Path to Dubbo-go config file")
@@ -40,38 +30,6 @@ func init() {
 
 	// 设置 DUBBO_GO_CONFIG_PATH 环境变量
 	os.Setenv("DUBBO_GO_CONFIG_PATH", *configFile)
-	dubboConfig.SetConsumerService(grpcUserInterfaceInfoImpl)
-	dubboConfig.SetConsumerService(grpcInterfaceInfoImpl)
-	dubboConfig.SetConsumerService(grpcUserInfoImpl)
-	if err := dubboConfig.Load(); err != nil {
-		panic(err)
-	}
-	logger.Info("start to test dubbo")
-	reply, err := grpcInterfaceInfoImpl.GetInterfaceInfo(context.Background(), &rpc_api.GetInterfaceInfoReq{
-		Path:   "aaa",
-		Method: "post",
-	})
-	if err != nil {
-		logger.Error(err)
-	}
-	logger.Infof("get reply~~: %v\n", reply)
-
-	reply2, err := grpcUserInfoImpl.GetInvokeUser(context.Background(), &rpc_api.GetInvokeUserReq{
-		AccessKey: "123456",
-	})
-	if err != nil {
-		logger.Error(err)
-	}
-	logger.Infof("get reply2~~: %v\n", reply2)
-
-	reply3, err := grpcUserInterfaceInfoImpl.InvokeCount(context.Background(), &rpc_api.InvokeCountReq{
-		InterfaceId: 1,
-		UserId:      1,
-	})
-	if err != nil {
-		logger.Error(err)
-	}
-	logger.Infof("get reply3~~: %v\n", reply3)
 }
 
 func main() {
@@ -90,20 +48,20 @@ func main() {
 		apiGroup.Any("/*path",
 			middleware.FilterWithAccessControl(), // 访问控制（黑白名单）
 			middleware.SignMiddleware(),          // 统一鉴权（API权限验证）
-			// todo 请求的模拟接口是否存在
-			middleware.ForwardApi(),            // 路由转发
-			middleware.InvokeCountMiddleware(), //调用次数统计更新
+			middleware.ValidInterfaceInfo(),      // 验证请求的接口是否存在
+			middleware.ForwardApi(),              // 路由转发
+			middleware.InvokeCountMiddleware(),   //调用次数统计更新
 		)
 	}
 
 	// 运行服务
-	// router.Run(":8080")
-	s := &http.Server{
-		Addr:           ":8080",
-		Handler:        router,
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
-	s.ListenAndServe()
+	router.Run(":8080")
+	// s := &http.Server{
+	// 	Addr:           ":8080",
+	// 	Handler:        router,
+	// 	ReadTimeout:    10 * time.Second,
+	// 	WriteTimeout:   10 * time.Second,
+	// 	MaxHeaderBytes: 1 << 20,
+	// }
+	// s.ListenAndServe()
 }

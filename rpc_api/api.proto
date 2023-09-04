@@ -1,4 +1,4 @@
-
+// protoc --go_out=. --go-triple_out=. ./api.proto
 // EDIT IT, change to your package, service and message
 syntax = "proto3";
 package rpc_api;
@@ -34,8 +34,9 @@ message InvokeCountResp {
 }
 
 message GetInterfaceInfoReq {
-    string path = 1;
-    string method = 2;
+    string host = 1;
+    string path = 2;
+    string method = 3;
 }
 
 message GetInterfaceInfoResp {
