@@ -8,56 +8,13 @@ import "google/protobuf/timestamp.proto";
 option go_package = "./;rpc_api";
 
 // 定义公共的接口（只定义，不实现接口）
-
-service UserIntefaceInfo {
-    // 调用接口统计
-    rpc InvokeCount (InvokeCountReq) returns (InvokeCountResp) {}
-}
-
-service IntefaceInfo {
-    // 从数据库中查询接口是否存在（请求路径、请求方法、请求参数）
-    rpc GetInterfaceInfo (GetInterfaceInfoReq) returns (GetInterfaceInfoResp) {}
-}
-
 service UserInfo {
     // 数据库中查询是否已分配给用户秘钥（accessKey）
     rpc GetInvokeUser (GetInvokeUserReq) returns (GetInvokeUserResp) {}
 }
-
-message InvokeCountReq {
-    int64 interfaceId = 1;
-    int64 userId = 2;
-}
-
-message InvokeCountResp {
-    bool result = 1;
-}
-
-message GetInterfaceInfoReq {
-    string host = 1;
-    string path = 2;
-    string method = 3;
-}
-
-message GetInterfaceInfoResp {
-    int64 id = 1;
-    string name = 2;
-    string description = 3;
-    string url = 4;
-    string requestparams = 5;
-    string requestheader = 6;
-    string responseheader = 7;
-    int32 status = 8;
-    string method = 9;
-    int64 userid = 10;
-    google.protobuf.Timestamp createtime = 11;
-    google.protobuf.Timestamp updatetime = 12;
-}
-
 message GetInvokeUserReq {
     string accessKey = 1;
 }
-
 message GetInvokeUserResp {
     int64 id = 1;
     string useraccount = 2;
@@ -71,4 +28,41 @@ message GetInvokeUserResp {
     google.protobuf.Timestamp createtime = 10;
     google.protobuf.Timestamp updatetime = 11;
     int32 isdelete = 12;
-  }
+}
+
+
+service UserIntefaceInfo {
+    // 调用接口统计
+    rpc InvokeCount (InvokeCountReq) returns (InvokeCountResp) {}
+}
+message InvokeCountReq {
+    int64 interfaceId = 1;
+    int64 userId = 2;
+}
+message InvokeCountResp {
+    bool result = 1;
+}
+
+
+service IntefaceInfo {
+    // 从数据库中查询接口是否存在（请求路径、请求方法、请求参数）
+    rpc GetInterfaceInfoById (GetInterfaceInfoByIdReq) returns (GetInterfaceInfoByIdResp) {}
+}
+message GetInterfaceInfoByIdReq {
+    int64 interfaceId = 1;
+}
+message GetInterfaceInfoByIdResp {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    string host = 4;
+    string url = 5;
+    string requestparams = 6;
+    string requestheader = 7;
+    string responseheader = 8;
+    int32 status = 9;
+    string method = 10;
+    int64 userid = 11;
+    google.protobuf.Timestamp createtime = 12;
+    google.protobuf.Timestamp updatetime = 13;
+}

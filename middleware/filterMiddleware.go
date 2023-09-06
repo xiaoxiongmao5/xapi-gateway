@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"xj/xapi-gateway/utils"
 
@@ -19,6 +20,7 @@ func FilterWithAccessControl() gin.HandlerFunc {
 			}
 		}
 		if flag {
+			fmt.Println("FilterWithAccessControl complete![访问控制（黑白名单）]")
 			c.Next()
 		} else {
 			c.JSON(http.StatusForbidden, gin.H{"error": "no auth"})

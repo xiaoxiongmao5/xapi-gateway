@@ -10,7 +10,6 @@ import (
 // 添加请求日志
 func LogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println("请求唯一标识：")
 		fmt.Println("请求参数：", c.Params)         //  [{path /interface/invoke}]
 		fmt.Println("请求路径URL：", c.Request.URL) //	/interface/invoke?token%20=%20123
 		fmt.Println("请求方法Method：", c.Request.Method)
@@ -25,6 +24,7 @@ func LogMiddleware() gin.HandlerFunc {
 		fmt.Println("请求参数Referer[来源域名]：", domain)   //	localhost
 		fmt.Println("访问IP：", utils.GetRequestIp(c)) //	127.0.0.1
 		fmt.Println("本地IP：", utils.GetLocalIP())    //	192.168.2.104
-
+		fmt.Println("LogMiddleware complete![请求日志]")
+		c.Next()
 	}
 }

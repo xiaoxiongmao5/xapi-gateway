@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	ghandle "xj/xapi-gateway/g_handle"
+	"xj/xapi-gateway/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,20 +13,21 @@ import (
 // 路由转发
 func ForwardApi() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 修改目标域名
-		targetDomain := "http://127.0.0.1:8090"
-		// 构建新的目标URL
-		targetURL := targetDomain + c.Param("path")
+		targetURL := replyGetInterfaceInfoByIdReq.Host + replyGetInterfaceInfoByIdReq.Url
+
 		queryString := c.Request.URL.RawQuery
 		if queryString != "" {
 			targetURL += "?" + queryString
 		}
 
-		// 获取转发请求方式参数（?forward_method=POST）
-		// forwardMethod := c.DefaultQuery("forward_method", "GET")
-		forwardMethod := c.Request.Method
+		// 判断请求方式是否一致
+		if !utils.CheckSameStrFold("校验: 请求方式method一致", replyGetInterfaceInfoByIdReq.Method, c.Request.Method) {
+			ghandle.HandlerForbidden(c)
+			return
+		}
+
 		// 创建转发请求
-		request, err := http.NewRequest(forwardMethod, targetURL, c.Request.Body)
+		request, err := http.NewRequest(c.Request.Method, targetURL, c.Request.Body)
 		if err != nil {
 			fmt.Println("error", "Failed to create request")
 			ghandle.HandlerInvokeError(c)
@@ -38,6 +40,15 @@ func ForwardApi() gin.HandlerFunc {
 				request.Header.Add(key, value)
 			}
 		}
+		// todo 这里可删可不删
+		// 如果删除，则最好加上流量染色(为了溯源)，不过有请求ip说明是网关发出的，也可以溯源
+		// 如果不删，思考是否会要求第三方服务添加跨域问题（好像也不会，跨域需要从前端发出才会有问题），不删的话，第三方也可以自行校验，也不错
+		request.Header.Del("accessKey")
+		request.Header.Del("nonce")
+		request.Header.Del("timestamp")
+		request.Header.Del("sign")
+		request.Header.Del("gateway_transdata")
+		request.Header.Add("from", "xapi-gateway")
 
 		// 发起转发请求
 		client := &http.Client{}
@@ -64,6 +75,7 @@ func ForwardApi() gin.HandlerFunc {
 		if response.StatusCode == http.StatusOK {
 			// 返回响应内容给请求方
 			c.String(response.StatusCode, string(body))
+			fmt.Println("ForwardApi complete![路由转发]")
 			c.Next()
 		} else {
 			ghandle.HandlerInvokeError(c)

@@ -25,7 +25,7 @@ import (
 
 func init() {
 	// 使用命令行参数来指定配置文件路径
-	configFile := flag.String("config", "conf/dubbogo.yml", "Path to Dubbo-go config file")
+	configFile := flag.String("config", "conf/dubbogo.yaml", "Path to Dubbo-go config file")
 	flag.Parse()
 
 	// 设置 DUBBO_GO_CONFIG_PATH 环境变量
@@ -46,11 +46,12 @@ func main() {
 	{
 		// 匹配这个路由组中的所有请求方式和路径片段，无论是GET、POST、DELETE 等方式，以及后面跟着什么路径片段，都会被这个路由组匹配到。
 		apiGroup.Any("/*path",
+			middleware.LoadGrpcImpl(),            // 加载GrpcImpl
 			middleware.FilterWithAccessControl(), // 访问控制（黑白名单）
 			middleware.SignMiddleware(),          // 统一鉴权（API权限验证）
 			middleware.ValidInterfaceInfo(),      // 验证请求的接口是否存在
 			middleware.ForwardApi(),              // 路由转发
-			middleware.InvokeCountMiddleware(),   //调用次数统计更新
+			middleware.InvokeCountMiddleware(),   // 调用次数统计更新
 		)
 	}
 

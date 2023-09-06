@@ -1,2 +1,4 @@
 log/*
 cache/*
+test/cache/*
+test/log/*

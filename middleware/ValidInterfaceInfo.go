@@ -2,40 +2,35 @@ package middleware
 
 import (
 	"context"
-	"net/http"
+	"fmt"
+	ghandle "xj/xapi-gateway/g_handle"
 	"xj/xapi-gateway/rpc_api"
 	"xj/xapi-gateway/utils"
 
 	"dubbo.apache.org/dubbo-go/v3/common/logger"
-	dubboConfig "dubbo.apache.org/dubbo-go/v3/config"
 	"github.com/gin-gonic/gin"
 )
 
-var grpcInterfaceInfoImpl = new(rpc_api.IntefaceInfoClientImpl)
-
 func ValidInterfaceInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		dubboConfig.SetConsumerService(grpcInterfaceInfoImpl)
-		if err := dubboConfig.Load(); err != nil {
-			panic(err)
-		}
-		domain, err := utils.GetDomainFromReferer(c.Request.Referer())
+		interfaceIdstr := c.Request.Header.Get("gateway_transdata")
+		interfaceId, err := utils.String2Int64(interfaceIdstr)
 		if err != nil {
-			c.JSON(http.StatusOK, gin.H{"error": "get domain failed"})
+			ghandle.HandlerSuccess(c, "参数错误", nil)
 			c.Abort()
 			return
 		}
-		reply, err := grpcInterfaceInfoImpl.GetInterfaceInfo(context.Background(), &rpc_api.GetInterfaceInfoReq{
-			Host:   domain,
-			Path:   c.Param("path"),
-			Method: c.Request.Method,
-		})
+		fmt.Println("开始调用RPC: 获得接口信息, 接口ID=", interfaceId)
+
+		reply, err := grpcInterfaceInfoImpl.GetInterfaceInfoById(context.Background(), &rpc_api.GetInterfaceInfoByIdReq{InterfaceId: interfaceId})
 		if err != nil {
-			c.JSON(http.StatusOK, gin.H{"error": "参数错误"})
+			ghandle.HandlerSuccess(c, "参数错误", nil)
 			c.Abort()
 			return
 		}
-		c.Set("cur_interfaceinfo", reply)
 		logger.Infof("get reply~~: %v\n", reply)
+		replyGetInterfaceInfoByIdReq = reply
+		fmt.Println("ValidInterfaceInfo complete![验证请求的接口是否存在]")
+		c.Next()
 	}
 }

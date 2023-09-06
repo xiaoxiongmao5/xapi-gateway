@@ -1,6 +1,10 @@
 package middleware
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+
+	"github.com/gin-gonic/gin"
+)
 
 // CORSMiddleware 是处理跨域请求的中间件
 func CORSMiddleware() gin.HandlerFunc {
@@ -22,7 +26,7 @@ func CORSMiddleware() gin.HandlerFunc {
 			c.AbortWithStatus(200)
 			return
 		}
-
+		fmt.Println("CORSMiddleware complete![处理跨域]")
 		c.Next()
 	}
 }
