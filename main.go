@@ -10,19 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-/** 使用网关做的事情（统一做的事情）
-
-1. 添加请求日志✅
-1. 路由转发✅
-1. 访问控制（黑白名单）✅
-1. 统一鉴权（AK SK）✅
-1. 发布控制（灰度更新）
-1. 流量染色
-1. 统一业务处理（调用次数统计更新）
-1. 接口保护（限制请求、信息脱敏、超时时间、降级熔断）
-1. 统一日志
-*/
-
 func init() {
 	// 使用命令行参数来指定配置文件路径
 	configFile := flag.String("config", "conf/dubbogo.yaml", "Path to Dubbo-go config file")
