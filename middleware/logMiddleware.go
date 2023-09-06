@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"time"
 	"xj/xapi-gateway/utils"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +11,7 @@ import (
 // 添加请求日志
 func LogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		startTime := time.Now()                //开始时间
 		fmt.Println("请求参数：", c.Params)         //  [{path /interface/invoke}]
 		fmt.Println("请求路径URL：", c.Request.URL) //	/interface/invoke?token%20=%20123
 		fmt.Println("请求方法Method：", c.Request.Method)
@@ -26,5 +28,8 @@ func LogMiddleware() gin.HandlerFunc {
 		fmt.Println("本地IP：", utils.GetLocalIP())    //	192.168.2.104
 		fmt.Println("LogMiddleware complete![请求日志]")
 		c.Next()
+		endTime := time.Now() //结束时间
+		subtime := endTime.Sub(startTime)
+		fmt.Printf("总耗时: %d 毫秒(%.2f 秒)\n", subtime.Milliseconds(), subtime.Seconds())
 	}
 }
