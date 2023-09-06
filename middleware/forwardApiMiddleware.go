@@ -48,7 +48,13 @@ func ForwardApi() gin.HandlerFunc {
 		request.Header.Del("timestamp")
 		request.Header.Del("sign")
 		request.Header.Del("gateway_transdata")
+		uniSessionId, exists := c.Get("uniSessionId")
+		if !exists {
+			ghandle.HandlerContextError(c, "uniSessionId")
+			return
+		}
 		request.Header.Add("from", "xapi-gateway")
+		request.Header.Add("from_sid", uniSessionId.(string))
 
 		// 发起转发请求
 		client := &http.Client{}
@@ -69,7 +75,7 @@ func ForwardApi() gin.HandlerFunc {
 		}
 
 		// 添加响应日志
-		fmt.Println("响应码：", response.StatusCode)
+		fmt.Println("响应码: ", response.StatusCode)
 
 		// 调用成功
 		if response.StatusCode == http.StatusOK {

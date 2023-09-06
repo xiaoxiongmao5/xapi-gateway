@@ -4,9 +4,18 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+// 生成唯一的sessionID，用于溯源每个请求日志
+func CreateUniSessionId() string {
+	unixNaco := time.Now().UnixNano() // 获取当前时间的Unix纳秒时间戳
+	unixNaco = (unixNaco * 100000) & 0x7FFFFFFF
+	return strconv.FormatInt(unixNaco, 10)
+}
 
 func GetRequestIp(c *gin.Context) string {
 	reqIp := c.ClientIP()
