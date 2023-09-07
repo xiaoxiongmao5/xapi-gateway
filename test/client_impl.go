@@ -40,18 +40,18 @@ func RunClientImpl() (res bool, err error) {
 	} else {
 		fmt.Println("======================================")
 		fmt.Println("GetInvokeUser reply1=", reply1)
-		fmt.Println("---------------------------------------------------------")
+		fmt.Println("--------------------------------------------------------------------------------------")
 	}
 
 	var interfaceId int64
-	interfaceId = 3
+	interfaceId = 2
 	reply2, err := grpcInterfaceInfoImpl.GetInterfaceInfoById(context.Background(), &rpc_api.GetInterfaceInfoByIdReq{InterfaceId: interfaceId})
 	if err != nil {
 		return
 	} else {
 		fmt.Println("======================================")
 		fmt.Println("GetInterfaceInfoById reply2=", reply2)
-		fmt.Println("---------------------------------------------------------")
+		fmt.Println("--------------------------------------------------------------------------------------")
 	}
 
 	reply3, err := grpcUserInterfaceInfoImpl.InvokeCount(context.Background(), &rpc_api.InvokeCountReq{InterfaceId: interfaceId, UserId: reply1.Id})
@@ -60,7 +60,17 @@ func RunClientImpl() (res bool, err error) {
 	} else {
 		fmt.Println("======================================")
 		fmt.Printf("InvokeCount reply3=%v\n", reply3)
-		fmt.Println("---------------------------------------------------------")
+		fmt.Println("--------------------------------------------------------------------------------------")
 	}
+
+	reply4, err := grpcUserInterfaceInfoImpl.GetFullUserInterfaceInfo(context.Background(), &rpc_api.GetFullUserInterfaceInfoReq{InterfaceId: interfaceId, UserId: reply1.Id})
+	if err != nil {
+		return
+	} else {
+		fmt.Println("======================================")
+		fmt.Printf("GetFullUserInterfaceInfo reply4=%v\n", reply4)
+		fmt.Println("--------------------------------------------------------------------------------------")
+	}
+
 	return true, nil
 }

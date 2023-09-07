@@ -50,3 +50,21 @@ func HandlerInvokeError(c *gin.Context) {
 	c.JSON(http.StatusBadRequest, gin.H{"result": http.StatusBadRequest, "msg": "调用接口失败"})
 	c.Abort()
 }
+
+// ——————————————————————以下是业务——————————————————————
+
+// 参数错误 200
+func HandlerParamError(c *gin.Context, paramName string) {
+	if paramName == "" {
+		c.JSON(http.StatusOK, gin.H{"result": 1, "msg": "参数错误"})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"result": 1, "msg": "参数[" + paramName + "]错误"})
+	}
+	c.Abort()
+}
+
+// 校验接口失败 200
+func HandlerValidInterfaceFailed(c *gin.Context, msg string) {
+	c.JSON(http.StatusOK, gin.H{"result": 2, "msg": msg})
+	c.Abort()
+}

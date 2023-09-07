@@ -13,7 +13,8 @@ var grpcInterfaceInfoImpl = new(rpc_api.IntefaceInfoClientImpl)
 var grpcUserInfoImpl = new(rpc_api.UserInfoClientImpl)
 var grpcUserInterfaceInfoImpl = new(rpc_api.UserIntefaceInfoClientImpl)
 var replyGetInvokeUser *rpc_api.GetInvokeUserResp
-var replyGetInterfaceInfoByIdReq *rpc_api.GetInterfaceInfoByIdResp
+var replyGetInterfaceInfoById *rpc_api.GetInterfaceInfoByIdResp
+var replyGetFullUserInterfaceInfo *rpc_api.GetFullUserInterfaceInfoResp
 
 func init() {
 	fmt.Println("LoadGrpcImpl init ~~")

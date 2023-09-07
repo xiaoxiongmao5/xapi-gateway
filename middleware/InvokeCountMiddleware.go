@@ -16,7 +16,7 @@ func InvokeCountMiddleware() gin.HandlerFunc {
 		// 更新接口调用次数
 		reply, err := grpcUserInterfaceInfoImpl.InvokeCount(context.Background(), &rpc_api.InvokeCountReq{
 			UserId:      replyGetInvokeUser.Id,
-			InterfaceId: replyGetInterfaceInfoByIdReq.Id,
+			InterfaceId: replyGetFullUserInterfaceInfo.Id,
 		})
 		if err != nil {
 			logger.Error(err)

@@ -154,6 +154,8 @@ var UserInfo_ServiceDesc = grpc_go.ServiceDesc{
 type UserIntefaceInfoClient interface {
 	// 调用接口统计
 	InvokeCount(ctx context.Context, in *InvokeCountReq, opts ...grpc_go.CallOption) (*InvokeCountResp, common.ErrorWithAttachment)
+	// 从数据库表user_interface_info left join interface_info中查询接口信息
+	GetFullUserInterfaceInfo(ctx context.Context, in *GetFullUserInterfaceInfoReq, opts ...grpc_go.CallOption) (*GetFullUserInterfaceInfoResp, common.ErrorWithAttachment)
 }
 
 type userIntefaceInfoClient struct {
@@ -161,7 +163,8 @@ type userIntefaceInfoClient struct {
 }
 
 type UserIntefaceInfoClientImpl struct {
-	InvokeCount func(ctx context.Context, in *InvokeCountReq) (*InvokeCountResp, error)
+	InvokeCount              func(ctx context.Context, in *InvokeCountReq) (*InvokeCountResp, error)
+	GetFullUserInterfaceInfo func(ctx context.Context, in *GetFullUserInterfaceInfoReq) (*GetFullUserInterfaceInfoResp, error)
 }
 
 func (c *UserIntefaceInfoClientImpl) GetDubboStub(cc *triple.TripleConn) UserIntefaceInfoClient {
@@ -182,12 +185,20 @@ func (c *userIntefaceInfoClient) InvokeCount(ctx context.Context, in *InvokeCoun
 	return out, c.cc.Invoke(ctx, "/"+interfaceKey+"/InvokeCount", in, out)
 }
 
+func (c *userIntefaceInfoClient) GetFullUserInterfaceInfo(ctx context.Context, in *GetFullUserInterfaceInfoReq, opts ...grpc_go.CallOption) (*GetFullUserInterfaceInfoResp, common.ErrorWithAttachment) {
+	out := new(GetFullUserInterfaceInfoResp)
+	interfaceKey := ctx.Value(constant.InterfaceKey).(string)
+	return out, c.cc.Invoke(ctx, "/"+interfaceKey+"/GetFullUserInterfaceInfo", in, out)
+}
+
 // UserIntefaceInfoServer is the server API for UserIntefaceInfo service.
 // All implementations must embed UnimplementedUserIntefaceInfoServer
 // for forward compatibility
 type UserIntefaceInfoServer interface {
 	// 调用接口统计
 	InvokeCount(context.Context, *InvokeCountReq) (*InvokeCountResp, error)
+	// 从数据库表user_interface_info left join interface_info中查询接口信息
+	GetFullUserInterfaceInfo(context.Context, *GetFullUserInterfaceInfoReq) (*GetFullUserInterfaceInfoResp, error)
 	mustEmbedUnimplementedUserIntefaceInfoServer()
 }
 
@@ -198,6 +209,9 @@ type UnimplementedUserIntefaceInfoServer struct {
 
 func (UnimplementedUserIntefaceInfoServer) InvokeCount(context.Context, *InvokeCountReq) (*InvokeCountResp, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method InvokeCount not implemented")
+}
+func (UnimplementedUserIntefaceInfoServer) GetFullUserInterfaceInfo(context.Context, *GetFullUserInterfaceInfoReq) (*GetFullUserInterfaceInfoResp, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFullUserInterfaceInfo not implemented")
 }
 func (s *UnimplementedUserIntefaceInfoServer) XXX_SetProxyImpl(impl protocol.Invoker) {
 	s.proxyImpl = impl
@@ -256,6 +270,35 @@ func _UserIntefaceInfo_InvokeCount_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserIntefaceInfo_GetFullUserInterfaceInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc_go.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFullUserInterfaceInfoReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	base := srv.(dubbo3.Dubbo3GrpcService)
+	args := []interface{}{}
+	args = append(args, in)
+	md, _ := metadata.FromIncomingContext(ctx)
+	invAttachment := make(map[string]interface{}, len(md))
+	for k, v := range md {
+		invAttachment[k] = v
+	}
+	invo := invocation.NewRPCInvocation("GetFullUserInterfaceInfo", args, invAttachment)
+	if interceptor == nil {
+		result := base.XXX_GetProxyImpl().Invoke(ctx, invo)
+		return result, result.Error()
+	}
+	info := &grpc_go.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ctx.Value("XXX_TRIPLE_GO_INTERFACE_NAME").(string),
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		result := base.XXX_GetProxyImpl().Invoke(ctx, invo)
+		return result, result.Error()
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // UserIntefaceInfo_ServiceDesc is the grpc_go.ServiceDesc for UserIntefaceInfo service.
 // It's only intended for direct use with grpc_go.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -267,6 +310,10 @@ var UserIntefaceInfo_ServiceDesc = grpc_go.ServiceDesc{
 			MethodName: "InvokeCount",
 			Handler:    _UserIntefaceInfo_InvokeCount_Handler,
 		},
+		{
+			MethodName: "GetFullUserInterfaceInfo",
+			Handler:    _UserIntefaceInfo_GetFullUserInterfaceInfo_Handler,
+		},
 	},
 	Streams:  []grpc_go.StreamDesc{},
 	Metadata: "api.proto",
@@ -276,7 +323,7 @@ var UserIntefaceInfo_ServiceDesc = grpc_go.ServiceDesc{
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type IntefaceInfoClient interface {
-	// 从数据库中查询接口是否存在（请求路径、请求方法、请求参数）
+	// 从数据库表interface_info中查询接口是否存在
 	GetInterfaceInfoById(ctx context.Context, in *GetInterfaceInfoByIdReq, opts ...grpc_go.CallOption) (*GetInterfaceInfoByIdResp, common.ErrorWithAttachment)
 }
 
@@ -310,7 +357,7 @@ func (c *intefaceInfoClient) GetInterfaceInfoById(ctx context.Context, in *GetIn
 // All implementations must embed UnimplementedIntefaceInfoServer
 // for forward compatibility
 type IntefaceInfoServer interface {
-	// 从数据库中查询接口是否存在（请求路径、请求方法、请求参数）
+	// 从数据库表interface_info中查询接口是否存在
 	GetInterfaceInfoById(context.Context, *GetInterfaceInfoByIdReq) (*GetInterfaceInfoByIdResp, error)
 	mustEmbedUnimplementedIntefaceInfoServer()
 }

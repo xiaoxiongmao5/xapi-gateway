@@ -34,6 +34,8 @@ message GetInvokeUserResp {
 service UserIntefaceInfo {
     // 调用接口统计
     rpc InvokeCount (InvokeCountReq) returns (InvokeCountResp) {}
+    // 从数据库表user_interface_info left join interface_info中查询接口信息
+    rpc GetFullUserInterfaceInfo (GetFullUserInterfaceInfoReq) returns (GetFullUserInterfaceInfoResp) {}
 }
 message InvokeCountReq {
     int64 interfaceId = 1;
@@ -43,9 +45,31 @@ message InvokeCountResp {
     bool result = 1;
 }
 
+message GetFullUserInterfaceInfoReq {
+    int64 interfaceId = 1;
+    int64 userId = 2;
+}
+message GetFullUserInterfaceInfoResp {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    int32 totalnum = 4;
+    int32 leftnum = 5;
+    int32 banstatus = 6;
+    string host = 7;
+    string url = 8;
+    string requestparams = 9;
+    string requestheader = 10;
+    string responseheader = 11;
+    int32 status = 12;
+    string method = 13;
+    int64 userid = 14;
+    google.protobuf.Timestamp createtime = 15;
+    google.protobuf.Timestamp updatetime = 16;
+}
 
 service IntefaceInfo {
-    // 从数据库中查询接口是否存在（请求路径、请求方法、请求参数）
+    // 从数据库表interface_info中查询接口是否存在
     rpc GetInterfaceInfoById (GetInterfaceInfoByIdReq) returns (GetInterfaceInfoByIdResp) {}
 }
 message GetInterfaceInfoByIdReq {

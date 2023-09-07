@@ -36,7 +36,7 @@ func main() {
 			middleware.LoadGrpcImpl(),            // 加载GrpcImpl
 			middleware.FilterWithAccessControl(), // 访问控制（黑白名单）
 			middleware.SignMiddleware(),          // 统一鉴权（API权限验证）
-			middleware.ValidInterfaceInfo(),      // 验证请求的接口是否存在
+			middleware.ValidUserInterfaceInfo(),  // 验证请求的接口是否允许被该用户使用
 			middleware.ForwardApi(),              // 路由转发
 			middleware.InvokeCountMiddleware(),   // 调用次数统计更新
 		)

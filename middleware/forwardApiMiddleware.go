@@ -13,7 +13,7 @@ import (
 // 路由转发
 func ForwardApi() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		targetURL := replyGetInterfaceInfoByIdReq.Host + replyGetInterfaceInfoByIdReq.Url
+		targetURL := replyGetFullUserInterfaceInfo.Host + replyGetFullUserInterfaceInfo.Url
 
 		queryString := c.Request.URL.RawQuery
 		if queryString != "" {
@@ -21,7 +21,7 @@ func ForwardApi() gin.HandlerFunc {
 		}
 
 		// 判断请求方式是否一致
-		if !utils.CheckSameStrFold("校验: 请求方式method一致", replyGetInterfaceInfoByIdReq.Method, c.Request.Method) {
+		if !utils.CheckSameStrFold("校验: 请求方式method一致", replyGetFullUserInterfaceInfo.Method, c.Request.Method) {
 			ghandle.HandlerForbidden(c)
 			return
 		}
