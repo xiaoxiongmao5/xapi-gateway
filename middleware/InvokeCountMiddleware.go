@@ -22,7 +22,7 @@ func InvokeCountMiddleware() gin.HandlerFunc {
 			logger.Error(err)
 		}
 		logger.Infof("更新接口调用次数 InvokeCount get reply~~: %v\n", reply)
-		fmt.Println("InvokeCountMiddleware complete![调用次数统计更新]")
+		fmt.Println("[middleware 调用次数统计更新]InvokeCountMiddleware complete!")
 		c.Next()
 	}
 }

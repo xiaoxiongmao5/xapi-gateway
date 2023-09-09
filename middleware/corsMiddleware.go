@@ -26,7 +26,7 @@ func CORSMiddleware() gin.HandlerFunc {
 			c.AbortWithStatus(200)
 			return
 		}
-		fmt.Println("CORSMiddleware complete![处理跨域]")
+		fmt.Println("[middleware 处理跨域]CORSMiddleware complete!")
 		c.Next()
 	}
 }

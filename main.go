@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
+	gconfig "xj/xapi-gateway/g_config"
 	"xj/xapi-gateway/middleware"
 
 	_ "dubbo.apache.org/dubbo-go/v3/imports"
@@ -17,9 +19,19 @@ func init() {
 
 	// 设置 DUBBO_GO_CONFIG_PATH 环境变量
 	os.Setenv("DUBBO_GO_CONFIG_PATH", *configFile)
+
+	// 加载App配置数据
+	if config, err := gconfig.LoadAppConfig("conf/appconfig.json"); err != nil {
+		fmt.Println("LoadAppConfig failed:", err)
+		panic(err)
+	} else {
+		gconfig.AppConfig = config
+	}
 }
 
 func main() {
+	// 启动配置文件加载协程
+	go gconfig.LoadNewAppConfig("conf/appconfig.json")
 
 	router := gin.Default()
 
@@ -42,8 +54,8 @@ func main() {
 		)
 	}
 
-	// 运行服务
-	router.Run(":8080")
+	port := fmt.Sprintf(":%d", gconfig.AppConfig.Server.Port)
+	router.Run(port)
 	// s := &http.Server{
 	// 	Addr:           ":8080",
 	// 	Handler:        router,

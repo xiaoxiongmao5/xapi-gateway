@@ -59,7 +59,7 @@ func SignMiddleware() gin.HandlerFunc {
 			ghandle.HandlerUnauthorized(c)
 			return
 		}
-		fmt.Println("SignMiddleware complete![统一鉴权（API权限验证）]")
+		fmt.Println("[middleware 统一鉴权（API权限验证）]SignMiddleware complete!")
 		c.Next()
 	}
 }

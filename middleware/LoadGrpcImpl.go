@@ -28,7 +28,7 @@ func LoadGrpcImpl() gin.HandlerFunc {
 			ghandle.HandlerDobboLoadFailed(c, "UserIntefaceInfoClientImpl")
 			return
 		}
-		fmt.Println("LoadGrpcImpl complete![加载GrpcImpl]")
+		fmt.Println("[middleware 加载GrpcImpl]LoadGrpcImpl complete!")
 		c.Next()
 	}
 }

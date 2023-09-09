@@ -81,7 +81,7 @@ func ForwardApi() gin.HandlerFunc {
 		if response.StatusCode == http.StatusOK {
 			// 返回响应内容给请求方
 			c.String(response.StatusCode, string(body))
-			fmt.Println("ForwardApi complete![路由转发]")
+			fmt.Println("[middleware 路由转发]ForwardApi complete!")
 			c.Next()
 		} else {
 			ghandle.HandlerInvokeError(c)

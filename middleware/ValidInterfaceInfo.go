@@ -51,7 +51,7 @@ func ValidUserInterfaceInfo() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		fmt.Println("ValidUserInterfaceInfo complete![验证请求的接口是否允许被该用户使用]")
+		fmt.Println("[middleware 验证请求的接口是否允许被该用户使用]ValidUserInterfaceInfo complete!")
 		c.Next()
 	}
 }

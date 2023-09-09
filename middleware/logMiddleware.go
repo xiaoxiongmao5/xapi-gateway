@@ -34,7 +34,7 @@ func LogMiddleware() gin.HandlerFunc {
 		fmt.Println("本机IP: ", utils.GetLocalIP())    //[192.168.2.104]
 		// fmt.Println("请求参数RemoteAddr: ", c.Request.RemoteAddr)
 		// fmt.Println("请求参数Body: ", c.Request.Body)
-		fmt.Println("LogMiddleware complete![请求日志]")
+		fmt.Println("[middleware 请求日志]LogMiddleware complete!")
 
 		c.Next()
 
