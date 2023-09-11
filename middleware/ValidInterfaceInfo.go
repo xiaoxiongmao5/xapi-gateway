@@ -26,7 +26,7 @@ func ValidUserInterfaceInfo() gin.HandlerFunc {
 		reply, err := grpcUserInterfaceInfoImpl.GetFullUserInterfaceInfo(context.Background(), &rpc_api.GetFullUserInterfaceInfoReq{InterfaceId: interfaceId, UserId: replyGetInvokeUser.Id})
 
 		if err != nil {
-			ghandle.HandlerParamError(c, "")
+			ghandle.HandlerValidInterfaceFailed(c, "接口剩余可调用次数不足")
 			c.Abort()
 			return
 		}
