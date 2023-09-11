@@ -24,6 +24,12 @@ func HandlerContextError(c *gin.Context, key string) {
 	c.Abort()
 }
 
+// 从RPC远程获取信息失败 204
+func HandlerGetContextByRPCError(c *gin.Context, key string) {
+	c.JSON(http.StatusOK, gin.H{"result": http.StatusNoContent, "msg": "RPC获取[" + key + "]失败"})
+	c.Abort()
+}
+
 // 未知错误 500
 func HandlerServerError(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"result": http.StatusInternalServerError, "msg": "未知错误"})

@@ -19,6 +19,7 @@ func InvokeCountMiddleware() gin.HandlerFunc {
 			InterfaceId: replyGetFullUserInterfaceInfo.Id,
 		})
 		if err != nil {
+			// todo 报警，但不影响用户剩余业务
 			logger.Error(err)
 		}
 		logger.Infof("更新接口调用次数 InvokeCount get reply~~: %v\n", reply)

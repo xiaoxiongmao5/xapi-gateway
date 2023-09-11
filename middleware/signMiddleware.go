@@ -28,7 +28,7 @@ func SignMiddleware() gin.HandlerFunc {
 		// 去数据库中查是否已分配给用户
 		reply, err := grpcUserInfoImpl.GetInvokeUser(context.Background(), &rpc_api.GetInvokeUserReq{AccessKey: accessKey})
 		if err != nil {
-			ghandle.HandlerUnauthorized(c)
+			ghandle.HandlerGetContextByRPCError(c, "用户信息")
 			return
 		}
 		logger.Infof("GetInvokeUser get reply~~: %v\n", reply)
