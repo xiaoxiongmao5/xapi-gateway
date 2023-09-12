@@ -7,6 +7,8 @@ require (
 	github.com/dubbogo/grpc-go v1.42.9
 	github.com/dubbogo/triple v1.1.8
 	github.com/gin-gonic/gin v1.9.1
+	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
+	github.com/sirupsen/logrus v1.7.0
 	golang.org/x/crypto v0.12.0
 	google.golang.org/protobuf v1.31.0
 )
@@ -71,6 +73,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/knadh/koanf v1.4.0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
+	github.com/lestrrat-go/strftime v1.0.6 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
 	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect

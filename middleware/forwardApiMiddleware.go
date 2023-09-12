@@ -1,13 +1,14 @@
 package middleware
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	ghandle "xj/xapi-gateway/g_handle"
+	glog "xj/xapi-gateway/g_log"
 	"xj/xapi-gateway/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 // 路由转发
@@ -29,7 +30,7 @@ func ForwardApi() gin.HandlerFunc {
 		// 创建转发请求
 		request, err := http.NewRequest(c.Request.Method, targetURL, c.Request.Body)
 		if err != nil {
-			fmt.Println("error", "Failed to create request")
+			glog.Log.Error("Failed to create request, err=", err.Error())
 			ghandle.HandlerInvokeError(c)
 			return
 		}
@@ -60,7 +61,7 @@ func ForwardApi() gin.HandlerFunc {
 		client := &http.Client{}
 		response, err := client.Do(request)
 		if err != nil {
-			fmt.Println("error", "Failed to forward request")
+			glog.Log.Error("Failed to forward request, err=", err.Error())
 			ghandle.HandlerInvokeError(c)
 			return
 		}
@@ -69,19 +70,23 @@ func ForwardApi() gin.HandlerFunc {
 		// 读取转发请求的响应内容
 		body, err := io.ReadAll(response.Body)
 		if err != nil {
-			fmt.Println("error", "Failed to read response")
+			glog.Log.Error("Failed to read response, err=", err.Error())
 			ghandle.HandlerInvokeError(c)
 			return
 		}
 
 		// 添加响应日志
-		fmt.Println("响应码: ", response.StatusCode)
+		glog.Log.Info("读取响应码: ", response.StatusCode)
 
 		// 调用成功
 		if response.StatusCode == http.StatusOK {
 			// 返回响应内容给请求方
 			c.String(response.StatusCode, string(body))
-			fmt.Println("[middleware 路由转发]ForwardApi complete!")
+
+			glog.Log.WithFields(logrus.Fields{
+				"pass": true,
+			}).Info("middleware-路由转发")
+
 			c.Next()
 		} else {
 			ghandle.HandlerInvokeError(c)

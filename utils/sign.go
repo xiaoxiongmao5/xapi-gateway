@@ -61,16 +61,3 @@ func MD5(str string) string {
 	s.Write([]byte(str))
 	return hex.EncodeToString(s.Sum(nil))
 }
-
-// func GetHeaderMap(accessKey string) (string, bool) {
-// 	hashMap := make(map[string]string, 0)
-// 	hashMap["accessKey"] = accessKey
-// 	nonce, err := GenerateRandomKey(4)
-// 	if err != nil {
-// 		return "", false
-// 	}
-// 	hashMap["nonce"] = nonce
-// 	hashMap["timestamp"] = string(time.Now().Unix())
-// 	hashMap["sign"] = GetAPISign()
-// 	return hashMap, true
-// }

@@ -3,43 +3,87 @@ package middleware
 import (
 	"fmt"
 	"time"
+	glog "xj/xapi-gateway/g_log"
 	"xj/xapi-gateway/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
-// 添加请求日志
+type AppHook struct {
+	RequestID string
+}
+
+func (h *AppHook) Levels() []logrus.Level {
+	return logrus.AllLevels
+}
+
+func (h *AppHook) Fire(entry *logrus.Entry) error {
+	entry.Data["req_id"] = h.RequestID
+	return nil
+}
+
 func LogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		startTime := time.Now() //开始时间
+		startTime := time.Now()                 // 开始时间
+		requestID := utils.CreateUniSessionId() //1365038848
+		c.Set("uniSessionId", requestID)
 
-		uniSessionId := utils.CreateUniSessionId()
-		c.Set("uniSessionId", uniSessionId)
+		// 添加reqId到每次请求的日志中
+		h := &AppHook{RequestID: requestID}
+		glog.Log.AddHook(h)
 
-		fmt.Println("请求唯一ID: ", uniSessionId)               //675481600
-		fmt.Println("请求路径参数: ", c.Params)                   //[{path /api/name}]
-		fmt.Println("请求路径带参数: ", c.Request.URL)             // /api/name?name=xiaohua123
-		fmt.Println("请求路径带参数: ", c.Request.RequestURI)      // /api/name?name=xiaohua123
-		fmt.Println("请求方式", c.Request.Method)               //GET
-		fmt.Println("请求头: ", c.Request.Header)              //map[Accept-Encoding:[gzip] Accesskey:[H6GxH5ERXL4zVZ3IJrs2EZBRO0CizHxMvDXrxbWVQmE=] Gateway_transdata:[2] Nonce:[3968843963288542780443340209407078562082975207184102505760380310447773194108299198709643218798055836] Sign:[faeeeaf3161abcdc46e46353551b63f0] Timestamp:[1693994604] User-Agent:[Go-http-client/1.1]]
-		fmt.Println("请求Cookies: ", c.Request.Cookies())     //[token=eyJhbGciOiJIUzxxx]
-		fmt.Println("请求目标地址Host: ", c.Request.Host)         //localhost:8080
-		fmt.Println("请求来源地址Referer: ", c.Request.Referer()) //
+		// 将标识添加到响应头中，以便客户端可以获取它
+		c.Writer.Header().Set("X-Request-ID", requestID)
+
+		// 记录请求信息
 		domain, err := utils.GetDomainFromReferer(c.Request.Referer())
 		if err != nil {
-			fmt.Println("获得请求来源域名Referer失败， err=: ", err.Error())
+			glog.Log.Error("获得请求来源域名Referer失败, err=: ", err.Error())
 		}
-		fmt.Println("请求来源域名Referer: ", domain)       //localhost
-		fmt.Println("访问IP: ", utils.GetRequestIp(c)) //127.0.0.1
-		fmt.Println("本机IP: ", utils.GetLocalIP())    //[192.168.2.104]
-		// fmt.Println("请求参数RemoteAddr: ", c.Request.RemoteAddr)
-		// fmt.Println("请求参数Body: ", c.Request.Body)
-		fmt.Println("[middleware 请求日志]LogMiddleware complete!")
+		localIp, err := utils.GetLocalIP()
+		if err != nil {
+			glog.Log.Error("获得本机IP失败, err=: ", err.Error())
+		}
+		// fmt.Println("请求路径参数: ", c.Params)       //[{path /api/name}]
+		// fmt.Println("请求路径带参数: ", c.Request.URL) // /api/name?name=xiaohua123
+		// fmt.Println("请求来源地址Referer: ", c.Request.Referer()) //
 
-		c.Next()
+		glog.Log.WithFields(logrus.Fields{
+			"请求路径":   c.Request.RequestURI,
+			"请求方式":   c.Request.Method,
+			"目标Host": c.Request.Host,
+			"来源域名":   domain,
+			"来源IP":   utils.GetRequestIp(c),
+			"本机IP":   localIp,
+		}).Info("请求日志")
 
-		endTime := time.Now() //结束时间
-		subtime := endTime.Sub(startTime)
-		fmt.Printf("总耗时: %d 毫秒(%.2f 秒)\n", subtime.Milliseconds(), subtime.Seconds())
+		glog.Log.WithFields(logrus.Fields{
+			"请求头":     c.Request.Header,
+			"Cookies": c.Request.Cookies(),
+		}).Info("请求日志补充")
+		// glog.Log.Infof("Received 请求路径: %s, 请求方式: %s, 目标Host: %s, 来源域名: %s, 来源IP: %s", c.Request.RequestURI, c.Request.Method, c.Request.Host, domain, utils.GetRequestIp(c))
+
+		c.Next() // 处理请求
+
+		endTime := time.Now() // 结束时间
+		// latencyTm := time.Since(startTime)
+
+		// 记录响应信息
+		respStatus := c.Writer.Status()
+		latencyTm := endTime.Sub(startTime) // 执行时间总耗时
+		totaltm := ""
+		if latencyTm < 1*time.Millisecond {
+			totaltm = fmt.Sprintf("%dµs", latencyTm.Microseconds()) //微秒 1微秒 = 1000纳秒
+		} else if latencyTm < 1*time.Second {
+			totaltm = fmt.Sprintf("%dms", latencyTm.Milliseconds()) //毫秒 1毫秒 = 1000微秒
+		} else {
+			totaltm = fmt.Sprintf("%.2fs", latencyTm.Seconds()) //秒 1秒 = 1000毫秒
+		}
+		glog.Log.WithFields(logrus.Fields{
+			"响应码": respStatus,
+			"总耗时": totaltm,
+		}).Info("响应日志")
+		// glog.Log.Infof("响应码: %d, 总耗时: %s", respStatus, totaltm)
 	}
 }

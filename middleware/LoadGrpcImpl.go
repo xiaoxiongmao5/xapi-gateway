@@ -1,12 +1,13 @@
 package middleware
 
 import (
-	"fmt"
 	ghandle "xj/xapi-gateway/g_handle"
+	glog "xj/xapi-gateway/g_log"
 	"xj/xapi-gateway/rpc_api"
 
 	"dubbo.apache.org/dubbo-go/v3/config"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 var grpcInterfaceInfoImpl = new(rpc_api.IntefaceInfoClientImpl)
@@ -16,9 +17,6 @@ var replyGetInvokeUser *rpc_api.GetInvokeUserResp
 var replyGetInterfaceInfoById *rpc_api.GetInterfaceInfoByIdResp
 var replyGetFullUserInterfaceInfo *rpc_api.GetFullUserInterfaceInfoResp
 
-func init() {
-	fmt.Println("LoadGrpcImpl init ~~")
-}
 func LoadGrpcImpl() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		config.SetConsumerService(grpcUserInfoImpl)
@@ -28,7 +26,11 @@ func LoadGrpcImpl() gin.HandlerFunc {
 			ghandle.HandlerDobboLoadFailed(c, "UserIntefaceInfoClientImpl")
 			return
 		}
-		fmt.Println("[middleware 加载GrpcImpl]LoadGrpcImpl complete!")
+
+		glog.Log.WithFields(logrus.Fields{
+			"pass": true,
+		}).Info("middleware-加载GrpcImpl")
+
 		c.Next()
 	}
 }

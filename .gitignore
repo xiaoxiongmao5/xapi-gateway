@@ -3,3 +3,4 @@ cache/*
 test/cache/*
 test/log/*
 xapi-gateway
+doc/*

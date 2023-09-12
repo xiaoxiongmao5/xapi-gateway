@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"net"
 	"net/url"
 	"strconv"
@@ -12,9 +11,9 @@ import (
 
 // 生成唯一的sessionID，用于溯源每个请求日志
 func CreateUniSessionId() string {
-	unixNaco := time.Now().UnixNano() // 获取当前时间的Unix纳秒时间戳
-	unixNaco = (unixNaco * 100000) & 0x7FFFFFFF
-	return strconv.FormatInt(unixNaco, 10)
+	unixNano := time.Now().UnixNano()           // 获取当前时间的Unix纳秒时间戳 1680067671341495000
+	unixNano = (unixNano * 100000) & 0x7FFFFFFF //1365038848
+	return strconv.FormatInt(unixNano, 10)      //1365038848
 }
 
 func GetRequestIp(c *gin.Context) string {
@@ -25,12 +24,11 @@ func GetRequestIp(c *gin.Context) string {
 	return reqIp
 }
 
-func GetLocalIP() []string {
+func GetLocalIP() ([]string, error) {
 	var ipStr []string
 	netInterfaces, err := net.Interfaces()
 	if err != nil {
-		fmt.Println("net.Interfaces error:", err.Error())
-		return ipStr
+		return ipStr, err
 	}
 
 	for i := 0; i < len(netInterfaces); i++ {
@@ -40,19 +38,19 @@ func GetLocalIP() []string {
 				if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 					//获取IPv6
 					/*if ipnet.IP.To16() != nil {
-						fmt.Println(ipnet.IP.String())
+						glog.Log.Info(ipnet.IP.String())
 						ipStr = append(ipStr, ipnet.IP.String())
 					}*/
 					//获取IPv4
 					if ipnet.IP.To4() != nil {
-						// fmt.Println(ipnet.IP.String())
+						// glog.Log.Info(ipnet.IP.String())
 						ipStr = append(ipStr, ipnet.IP.String())
 					}
 				}
 			}
 		}
 	}
-	return ipStr
+	return ipStr, nil
 }
 
 func GetDomainFromReferer(referer string) (string, error) {

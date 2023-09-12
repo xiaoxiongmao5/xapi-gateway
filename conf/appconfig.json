@@ -2,8 +2,10 @@
       "server": {
         "port": 8080
       },
-      "ipWhiteList":[
-        "127.0.0.1",
-        "192.168.2.104"
+      "ipWhiteList": [
+        "127.0.0.1"
+      ],
+      "ipBlackList": [
+    
       ]
 }

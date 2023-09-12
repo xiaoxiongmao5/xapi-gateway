@@ -2,14 +2,14 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"xj/xapi-gateway/enums"
 	ghandle "xj/xapi-gateway/g_handle"
+	glog "xj/xapi-gateway/g_log"
 	"xj/xapi-gateway/rpc_api"
 	"xj/xapi-gateway/utils"
 
-	"dubbo.apache.org/dubbo-go/v3/common/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 func ValidUserInterfaceInfo() gin.HandlerFunc {
@@ -21,7 +21,7 @@ func ValidUserInterfaceInfo() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		fmt.Println("开始调用RPC: 获得用户接口信息, 接口ID=", interfaceId)
+		glog.Log.Info("开始调用RPC: 获得用户接口信息, 接口ID=", interfaceId)
 
 		reply, err := grpcUserInterfaceInfoImpl.GetFullUserInterfaceInfo(context.Background(), &rpc_api.GetFullUserInterfaceInfoReq{InterfaceId: interfaceId, UserId: replyGetInvokeUser.Id})
 
@@ -30,7 +30,7 @@ func ValidUserInterfaceInfo() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		logger.Infof("get reply~~: %v\n", reply)
+		glog.Log.Infof("get reply~~: %v", reply)
 		replyGetFullUserInterfaceInfo = reply
 
 		// 检查接口剩余可调用次数
@@ -51,7 +51,11 @@ func ValidUserInterfaceInfo() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		fmt.Println("[middleware 验证请求的接口是否允许被该用户使用]ValidUserInterfaceInfo complete!")
+
+		glog.Log.WithFields(logrus.Fields{
+			"pass": true,
+		}).Info("middleware-验证请求的接口是否允许被该用户使用")
+
 		c.Next()
 	}
 }

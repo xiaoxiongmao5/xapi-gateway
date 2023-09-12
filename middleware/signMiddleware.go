@@ -4,15 +4,15 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
 	"strconv"
 	"time"
 	ghandle "xj/xapi-gateway/g_handle"
+	glog "xj/xapi-gateway/g_log"
 	"xj/xapi-gateway/rpc_api"
 	"xj/xapi-gateway/utils"
 
-	"dubbo.apache.org/dubbo-go/v3/common/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 func SignMiddleware() gin.HandlerFunc {
@@ -24,14 +24,14 @@ func SignMiddleware() gin.HandlerFunc {
 		sign := c.Request.Header.Get("sign")
 		body := ""
 
-		fmt.Println("开始调用RPC: 获得用户信息")
+		glog.Log.Info("开始调用RPC: 获得用户信息")
 		// 去数据库中查是否已分配给用户
 		reply, err := grpcUserInfoImpl.GetInvokeUser(context.Background(), &rpc_api.GetInvokeUserReq{AccessKey: accessKey})
 		if err != nil {
 			ghandle.HandlerGetContextByRPCError(c, "用户信息")
 			return
 		}
-		logger.Infof("GetInvokeUser get reply~~: %v\n", reply)
+		glog.Log.Infof("GetInvokeUser get reply~~: %v", reply)
 		replyGetInvokeUser = reply
 
 		if !utils.CheckSame[string]("校验: accessKey一致", accessKey, reply.Accesskey) {
@@ -49,7 +49,7 @@ func SignMiddleware() gin.HandlerFunc {
 		fiveMinutes := int64(5 * 60)
 		timestampNow := time.Now().Unix()
 		if tsInt, err := strconv.ParseInt(timestamp, 10, 64); err != nil || timestampNow-tsInt >= fiveMinutes {
-			fmt.Println("时间戳校验失败, 已超时5分钟")
+			glog.Log.Error("时间戳校验失败, 已超时5分钟")
 			ghandle.HandlerUnauthorized(c)
 			return
 		}
@@ -59,7 +59,11 @@ func SignMiddleware() gin.HandlerFunc {
 			ghandle.HandlerUnauthorized(c)
 			return
 		}
-		fmt.Println("[middleware 统一鉴权（API权限验证）]SignMiddleware complete!")
+
+		glog.Log.WithFields(logrus.Fields{
+			"pass": true,
+		}).Info("middleware-统一鉴权-API权限验证")
+
 		c.Next()
 	}
 }

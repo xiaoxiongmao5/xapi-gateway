@@ -1,9 +1,11 @@
 package middleware
 
 import (
-	"fmt"
+	"net/http"
+	glog "xj/xapi-gateway/g_log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 // CORSMiddleware 是处理跨域请求的中间件
@@ -23,10 +25,14 @@ func CORSMiddleware() gin.HandlerFunc {
 
 		// 如果是预检请求（OPTIONS 请求），直接返回成功状态
 		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(200)
+			c.AbortWithStatus(http.StatusNoContent)
 			return
 		}
-		fmt.Println("[middleware 处理跨域]CORSMiddleware complete!")
+
+		glog.Log.WithFields(logrus.Fields{
+			"pass": true,
+		}).Info("middleware-处理跨域")
+
 		c.Next()
 	}
 }
