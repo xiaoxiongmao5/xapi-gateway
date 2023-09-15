@@ -1,11 +1,5 @@
 {
       "server": {
         "port": 8080
-      },
-      "ipWhiteList": [
-        "127.0.0.1"
-      ],
-      "ipBlackList": [
-    
-      ]
+      }
 }

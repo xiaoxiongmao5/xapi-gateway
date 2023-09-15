@@ -8,6 +8,7 @@ import (
 	glog "xj/xapi-gateway/g_log"
 	"xj/xapi-gateway/loadconfig"
 	"xj/xapi-gateway/middleware"
+	"xj/xapi-gateway/router"
 
 	_ "dubbo.apache.org/dubbo-go/v3/imports"
 
@@ -28,10 +29,6 @@ func init() {
 
 	// 设置 DUBBO_GO_CONFIG_PATH 环境变量
 	os.Setenv("DUBBO_GO_CONFIG_PATH", *configFile)
-}
-
-func main() {
-	defer glog.Log.Writer().Close()
 
 	// 加载App配置数据
 	if config, err := loadconfig.LoadAppConfig(); err != nil {
@@ -42,8 +39,15 @@ func main() {
 		gconfig.AppConfig = config
 	}
 
+	// 创建IP限流器
+	middleware.IPLimiter = middleware.NewIPRateLimiter()
+}
+
+func main() {
+	defer glog.Log.Writer().Close()
+
 	// 启动配置文件加载协程
-	go loadconfig.LoadNewAppConfig()
+	go loadconfig.LoadNewAppDynamicConfig()
 
 	r := gin.Default()
 
@@ -56,8 +60,11 @@ func main() {
 	// 访问控制（黑名单）
 	r.Use(middleware.FilterWithAccessControlInBlackIp())
 
+	// 使用中间件来处理IP并发限流
+	r.Use(middleware.IPRateLimiterMiddleware())
+
 	// 定义一个路由组，用于匹配以 / 开头的路由
-	apiGroup := r.Group("/")
+	apiGroup := r.Group("/api/name")
 	{
 		// 匹配这个路由组中的所有请求方式和路径片段，无论是GET、POST、DELETE 等方式，以及后面跟着什么路径片段，都会被这个路由组匹配到。
 		apiGroup.Any("/*path",
@@ -68,6 +75,8 @@ func main() {
 			middleware.InvokeCountMiddleware(),  // 调用次数统计更新
 		)
 	}
+
+	router.ManagerRouter(r)
 
 	port := fmt.Sprintf(":%d", gconfig.AppConfig.Server.Port)
 	r.Run(port)

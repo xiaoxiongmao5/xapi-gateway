@@ -1,0 +1,15 @@
+@host=http://127.0.0.1:8080
+# @host=http://xapi-gateway.com:8090
+
+### 获得IP的限流配置
+GET {{host}}/manage/config/ratelimit?ip=127.0.0.1
+
+### 更新IP的限流配置
+PUT {{host}}/manage/config/ratelimit
+Content-Type: application/json
+
+{
+    "ip":"127.0.0.1",
+    "requests_per_second":5,
+    "bucket_size":5
+}

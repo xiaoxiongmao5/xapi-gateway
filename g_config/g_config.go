@@ -1,19 +1,24 @@
 package gconfig
 
-import (
-	"sync"
-)
-
 // App配置数据
 type AppConfiguration struct {
 	Server struct {
 		Port int `json:"port"`
 	} `json:"server"`
-	IPWhiteList []string `json:"ipWhiteList"`
-	IPBlackList []string `json:"ipBlackList"`
+}
+
+// App配置数据(可动态更新)
+type AppConfigurationDynamic struct {
+	IPWhiteList     []string `json:"ipWhiteList"`
+	IPBlackList     []string `json:"ipBlackList"`
+	IPAdminList     []string `json:"ipAdminList"`
+	RateLimitConfig struct {
+		RequestsPerSecond float64 `json:"requests_per_second"`
+		BucketSize        int     `json:"bucket_size"`
+	} `json:"rateLimitConfig"`
 }
 
 var (
-	AppConfigMutex sync.Mutex
-	AppConfig      *AppConfiguration
+	AppConfig        *AppConfiguration
+	AppConfigDynamic *AppConfigurationDynamic
 )
