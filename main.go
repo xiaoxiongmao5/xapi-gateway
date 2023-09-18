@@ -64,7 +64,7 @@ func main() {
 	r.Use(middleware.IPRateLimiterMiddleware())
 
 	// 定义一个路由组，用于匹配以 / 开头的路由
-	apiGroup := r.Group("/api/name")
+	apiGroup := r.Group("/api/invoke")
 	{
 		// 匹配这个路由组中的所有请求方式和路径片段，无论是GET、POST、DELETE 等方式，以及后面跟着什么路径片段，都会被这个路由组匹配到。
 		apiGroup.Any("/*path",
