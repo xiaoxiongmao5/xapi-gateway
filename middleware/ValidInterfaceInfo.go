@@ -14,10 +14,10 @@ import (
 
 func ValidUserInterfaceInfo() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		interfaceIdstr := c.Request.Header.Get("gateway_transdata")
+		interfaceIdstr := c.Request.Header.Get("interfaceId")
 		interfaceId, err := utils.String2Int64(interfaceIdstr)
 		if err != nil {
-			ghandle.HandlerParamError(c, "gateway_transdata")
+			ghandle.HandlerParamError(c, "interfaceId")
 			c.Abort()
 			return
 		}

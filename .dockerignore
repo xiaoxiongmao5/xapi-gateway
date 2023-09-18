@@ -2,3 +2,4 @@ cache/
 log/
 test/
 xapi-gateway
+api.rest

@@ -48,7 +48,7 @@ func ForwardApi() gin.HandlerFunc {
 		request.Header.Del("nonce")
 		request.Header.Del("timestamp")
 		request.Header.Del("sign")
-		request.Header.Del("gateway_transdata")
+		request.Header.Del("interfaceId")
 		uniSessionId, exists := c.Get("uniSessionId")
 		if !exists {
 			ghandle.HandlerContextError(c, "uniSessionId")
@@ -76,12 +76,26 @@ func ForwardApi() gin.HandlerFunc {
 		}
 
 		// 添加响应日志
-		glog.Log.Info("读取响应码: ", response.StatusCode)
+		glog.Log.WithFields(logrus.Fields{
+			"响应码":  response.StatusCode,
+			"响应内容": string(body),
+		}).Info("路由转发的响应结果")
 
 		// 调用成功
 		if response.StatusCode == http.StatusOK {
 			// 返回响应内容给请求方
-			c.String(response.StatusCode, string(body))
+			// c.String(response.StatusCode, string(body))
+
+			// 设置响应头
+			for key, values := range response.Header {
+				for _, value := range values {
+					c.Writer.Header().Add(key, value)
+				}
+			}
+			// 设置响应状态码
+			c.Writer.WriteHeader(response.StatusCode)
+			// 返回响应内容给请求方
+			c.Writer.Write(body)
 
 			glog.Log.WithFields(logrus.Fields{
 				"pass": true,
