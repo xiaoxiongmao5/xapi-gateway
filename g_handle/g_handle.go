@@ -71,6 +71,7 @@ func HandlerValidInterfaceFailed(c *gin.Context, msg string) {
 
 // 调用接口失败 400
 func HandlerInvokeError(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"result": http.StatusBadRequest, "msg": "调用接口失败"})
+	// http.StatusBadRequest
+	c.JSON(http.StatusOK, gin.H{"result": -1, "msg": "第三方API接口调用失败,请联系管理员!"})
 	c.Abort()
 }
