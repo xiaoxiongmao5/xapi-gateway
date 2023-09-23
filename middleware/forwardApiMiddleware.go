@@ -1,8 +1,11 @@
 package middleware
 
 import (
+	"context"
 	"io"
 	"net/http"
+	"time"
+	gconfig "xj/xapi-gateway/g_config"
 	ghandle "xj/xapi-gateway/g_handle"
 	glog "xj/xapi-gateway/g_log"
 	"xj/xapi-gateway/utils"
@@ -14,6 +17,14 @@ import (
 // 路由转发
 func ForwardApi() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		timeout := 3
+		if gconfig.AppConfigDynamic.InvokeTimeOut > 0 {
+			timeout = gconfig.AppConfigDynamic.InvokeTimeOut
+		}
+		// 创建带有超时时间的 context
+		ctx, cancel := context.WithTimeout(c.Request.Context(), time.Second*time.Duration(timeout))
+		defer cancel() // 函数返回前调用 cancel，确保释放资源
+
 		targetURL := replyGetFullUserInterfaceInfo.Host + replyGetFullUserInterfaceInfo.Url
 
 		queryString := c.Request.URL.RawQuery
@@ -34,6 +45,9 @@ func ForwardApi() gin.HandlerFunc {
 			ghandle.HandlerInvokeError(c)
 			return
 		}
+
+		// 使用带有超时时间的 context 发起请求
+		request = request.WithContext(ctx)
 
 		// 设置请求头
 		for key, values := range c.Request.Header {
@@ -66,6 +80,17 @@ func ForwardApi() gin.HandlerFunc {
 			return
 		}
 		defer response.Body.Close()
+
+		// 通过select多路复用，进行一个超时控制
+		select {
+		case <-ctx.Done():
+			// 请求超时
+			glog.Log.Error("Request timed out")
+			ghandle.HandlerInvokeTimeout(c)
+			return
+		default:
+			// 请求未超时，继续处理响应
+		}
 
 		// 读取转发请求的响应内容
 		body, err := io.ReadAll(response.Body)

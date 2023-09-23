@@ -69,9 +69,16 @@ func HandlerValidInterfaceFailed(c *gin.Context, msg string) {
 	c.Abort()
 }
 
-// 调用接口失败 400
+// 第三方API接口调用失败,请联系管理员 -1
 func HandlerInvokeError(c *gin.Context) {
 	// http.StatusBadRequest
 	c.JSON(http.StatusOK, gin.H{"result": -1, "msg": "第三方API接口调用失败,请联系管理员!"})
+	c.Abort()
+}
+
+// 第三方API接口调用超时,请联系管理员 -2
+func HandlerInvokeTimeout(c *gin.Context) {
+	// http.StatusBadRequest
+	c.JSON(http.StatusOK, gin.H{"result": -2, "msg": "第三方API接口调用超时,请联系管理员!"})
 	c.Abort()
 }

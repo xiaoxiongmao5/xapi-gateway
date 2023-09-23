@@ -16,6 +16,7 @@ type AppConfigurationDynamic struct {
 		RequestsPerSecond float64 `json:"requests_per_second"`
 		BucketSize        int     `json:"bucket_size"`
 	} `json:"rateLimitConfig"`
+	InvokeTimeOut int `json:"invokeTimeOut"`
 }
 
 var (
