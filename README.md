@@ -38,5 +38,8 @@ go clean -testcache //清除测试缓存
 
 * 配置文件位置：/conf/dubbogo.yaml
 
-* 具体业务为为： `获得用户信息[GetInvokeUser]`、`获得接口信息[GetInterfaceInfoByIdReq]`、`更新接口调用次数[InvokeCount]` 
+* 具体业务为为：
+    * 获得用户信息 `GetInvokeUser`
+    * 获得接口信息 `GetInterfaceInfoByIdReq`
+    * 更新接口调用次数 `InvokeCount`
 
